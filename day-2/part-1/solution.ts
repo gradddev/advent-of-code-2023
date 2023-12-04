@@ -1,17 +1,19 @@
 import { Scanner } from "../../utilities/scanner";
 
 export function solve(input: string): number {
+  const scanner = new Scanner();
+
   let sum = 0;
 
   for (const line of input.split("\n")) {
-    Scanner.reset(line);
+    scanner.reset(line);
 
-    const gameId = Scanner.scanNextInteger();
+    const gameId = scanner.scanNextInteger();
 
     let isPossible = true;
     let count = -1;
-    while ((count = Scanner.scanNextInteger()) !== -1) {
-      const color = Scanner.scanNextWord();
+    while ((count = scanner.scanNextInteger()) !== -1) {
+      const color = scanner.scanNextWord();
 
       if (
         (color === "red" && count > 12) ||

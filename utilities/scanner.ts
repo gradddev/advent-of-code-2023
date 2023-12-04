@@ -1,73 +1,102 @@
+interface Options {
+  isBackwards?: boolean;
+}
+
 export class Scanner {
-  static line = "";
-  static index = 0;
+  #line = "";
+  #index = 0;
+  #isBackwards = false;
 
-  static reset(line: string) {
-    Scanner.line = line;
-    Scanner.index = 0;
+  constructor(options: Options = {}) {
+    this.#isBackwards = options.isBackwards ?? false;
   }
 
-  static char() {
-    return Scanner.line[Scanner.index];
+  get line(): string {
+    return this.#line;
   }
 
-  static next() {
-    Scanner.index++;
+  get index(): number {
+    return this.#index;
   }
 
-  static skipNonDigit() {
-    while (Scanner.char() < "0" || Scanner.char() > "9") {
-      Scanner.next();
+  reset(line: string, index = this.#isBackwards ? line.length - 1 : 0) {
+    this.#line = line;
+    this.#index = index;
+  }
+
+  char() {
+    return this.#line[this.#index];
+  }
+
+  next() {
+    this.#index += this.#isBackwards ? -1 : 1;
+  }
+
+  skipNonDigit() {
+    while (this.char() < "0" || this.char() > "9") {
+      this.next();
     }
   }
 
-  static skipNonAlpha() {
-    while (Scanner.char() < "a" || Scanner.char() > "z") {
-      Scanner.next();
+  skipNonAlpha() {
+    while (this.char() < "a" || this.char() > "z") {
+      this.next();
     }
   }
 
-  static isEnd() {
-    return Scanner.index >= Scanner.line.length;
+  isFinished() {
+    return this.#isBackwards
+      ? this.#index < 0
+      : this.#index >= this.#line.length;
   }
 
-  static isDigit() {
-    return Scanner.char() >= "0" && Scanner.char() <= "9";
+  isDigit() {
+    return this.char() >= "0" && this.char() <= "9";
   }
 
-  static isAlpha() {
-    return Scanner.char() >= "a" && Scanner.char() <= "z";
+  isAlpha() {
+    return this.char() >= "a" && this.char() <= "z";
   }
 
-  static scanNextInteger(): number {
-    Scanner.skipNonDigit();
+  scanNextDigit(): number {
+    this.skipNonDigit();
 
-    if (Scanner.isEnd() || !Scanner.isDigit()) {
+    if (this.isFinished() || !this.isDigit()) {
       return -1;
     }
 
-    const startIndex = Scanner.index;
-
-    while (!Scanner.isEnd() && Scanner.isDigit()) {
-      Scanner.next();
-    }
-
-    return Number(this.line.slice(startIndex, Scanner.index));
+    return Number(this.#line[this.index]);
   }
 
-  static scanNextWord(): string {
-    Scanner.skipNonAlpha();
+  scanNextInteger(): number {
+    this.skipNonDigit();
 
-    if (Scanner.isEnd() || !Scanner.isAlpha()) {
+    if (this.isFinished() || !this.isDigit()) {
+      return -1;
+    }
+
+    const startIndex = this.#index;
+
+    while (!this.isFinished() && this.isDigit()) {
+      this.next();
+    }
+
+    return Number(this.#line.slice(startIndex, this.#index));
+  }
+
+  scanNextWord(): string {
+    this.skipNonAlpha();
+
+    if (this.isFinished() || !this.isAlpha()) {
       return "";
     }
 
-    const startIndex = Scanner.index;
+    const startIndex = this.#index;
 
-    while (!Scanner.isEnd() && Scanner.isAlpha()) {
-      Scanner.next();
+    while (!this.isFinished() && this.isAlpha()) {
+      this.next();
     }
 
-    return this.line.slice(startIndex, Scanner.index);
+    return this.#line.slice(startIndex, this.#index);
   }
 }
